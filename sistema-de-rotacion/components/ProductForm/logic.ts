@@ -8,34 +8,18 @@ export const useProductFormLogic = () => {
   };
 
   const handleStartRotation = () => {
-    const total = state.productCount;
-    const units = state.unitsPerBox || 1;
+    const cantidadDeCajas = state.productCount;
     const fecha = state.startDate?.toLocaleDateString() || '';
+    const descripcion = state.description || '';
     let cajas: any[] = [];
 
-    if (state.byBoxes) {
-      const cantidadDeCajas = Math.ceil(total / units);
-      for (let i = 1; i <= cantidadDeCajas; i++) {
-        cajas.push({
-          caja: i,
-          cantidad: total,
-          porCajas: true,
-          unidadesPorCaja: units,
-          descripcion: state.description,
-          fecha,
-        });
-      }
-    } else {
-      for (let i = 1; i <= total; i++) {
-        cajas.push({
-          caja: i,
-          cantidad: 1,
-          porCajas: false,
-          unidadesPorCaja: 1,
-          descripcion: state.description,
-          fecha,
-        });
-      }
+    for (let i = 1; i <= cantidadDeCajas; i++) {
+      cajas.push({
+        id: crypto.randomUUID(),
+        caja: i,
+        descripcion,
+        fecha,
+      });
     }
 
     dispatch({ type: 'SET_QR_LIST', value: cajas });

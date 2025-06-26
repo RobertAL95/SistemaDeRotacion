@@ -1,7 +1,7 @@
 'use client';
 
 import ProductForm from '@/components/ProductForm/render';
-import QRViewer from '@/components/QRViewer/render';
+import {QRViewer} from '@/components/QRViewer/render';
 import HistoryPanel from '@/components/HistoryPanel/render';
 import { Container, Typography, Divider } from '@mui/material';
 
@@ -19,3 +19,4 @@ export default function Page() {
     </Container>
   );
 }
+

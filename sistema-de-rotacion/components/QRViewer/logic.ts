@@ -1,38 +1,43 @@
-import { useState } from 'react';
 import { useGlobal } from '@/context/GlobalState';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useQRLogic = () => {
   const { state, dispatch } = useGlobal();
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [individualDescription, setIndividualDescription] = useState('');
+  const [selectedBox, setSelectedBox] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [individualDescriptions, setIndividualDescriptions] = useState<{ [key: number]: string }>({});
 
-  const handleOpenModal = (index: number) => {
-    setSelectedIndex(index);
-    setIndividualDescription(state.qrList[index]?.individualDescription || '');
+  const handleEditClick = (boxIndex: number) => {
+    setSelectedBox(boxIndex);
+    setModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setSelectedIndex(null);
-    setIndividualDescription('');
+  const handleDescriptionChange = (desc: string) => {
+    if (selectedBox !== null) {
+      setIndividualDescriptions(prev => ({ ...prev, [selectedBox]: desc }));
+    }
   };
 
-  const handleSaveDescription = () => {
-    const newQRList = [...state.qrList];
-    newQRList[selectedIndex!] = {
-      ...newQRList[selectedIndex!],
-      individualDescription,
-    };
-    dispatch({ type: 'SET_QR_LIST', value: newQRList });
-    handleCloseModal();
+  const closeModal = () => setModalOpen(false);
+
+  const generateQRData = () => {
+    return Array.from({ length: Math.ceil(state.productCount / (state.unitsPerBox || 1)) }, (_, i) => ({
+      id: uuidv4(),
+      boxNumber: i + 1,
+      generalDescription: state.description,
+      individualDescription: individualDescriptions[i + 1] || '',
+      createdBy: 'usuario_demo'
+    }));
   };
 
   return {
-    qrList: state.qrList,
-    selectedIndex,
-    individualDescription,
-    setIndividualDescription,
-    handleOpenModal,
-    handleCloseModal,
-    handleSaveDescription,
+    modalOpen,
+    selectedBox,
+    handleEditClick,
+    handleDescriptionChange,
+    closeModal,
+    individualDescriptions,
+    generateQRData
   };
 };
