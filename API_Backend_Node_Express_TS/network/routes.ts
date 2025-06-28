@@ -2,6 +2,7 @@ import { Router } from "express";
 import { loginRouter } from "../services/Auth/network";
 import { userRouter } from "../services/Users/network";
 import invitationRouter from "../services/Invitations/network"; // ✅ Importa el router completo
+import { entregadorRouter } from "../services/Entregador/network"; // ✅ Agrega entregador
 import { authenticateToken } from "./authMiddleware";
 
 const router = Router();
@@ -13,7 +14,10 @@ router.use("/login", loginRouter);
 router.use("/users", userRouter);
 
 // Rutas para invitaciones
-router.use("/invitations", invitationRouter); // ✅ Monta el router de invitaciones
+router.use("/invitations", invitationRouter);
+
+// Rutas para entregadores
+router.use("/entregadores", entregadorRouter); // ✅ Monta router entregador
 
 // Ejemplo de ruta protegida para probar autenticación
 router.get("/protected", authenticateToken, (req, res) => {

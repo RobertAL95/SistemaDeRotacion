@@ -27,7 +27,8 @@ export async function sendInvitation(req: Request, res: Response) {
       { expiresIn: "48h" }
     );
 
-    const invitationLink = `https://tuapp.com/register-deliverer?token=${invitationToken}`;
+    // Link apuntando a tu entorno local
+    const invitationLink = `http://localhost:3000/api/invitations/accept?token=${invitationToken}`;
 
     await sendEmail(username, "Invitación para registrarte", `
       <p>¡Hola!</p>
@@ -40,6 +41,42 @@ export async function sendInvitation(req: Request, res: Response) {
   } catch (error) {
     console.error("Error al enviar invitación:", error);
     return res.status(500).json({ error: "Error al enviar invitación" });
+  }
+}
+
+// Endpoint GET para procesar el click del link de invitación
+export async function acceptInvitationPage(req: Request, res: Response) {
+  const token = req.query.token as string;
+
+  if (!token) {
+    return res.status(400).send("Token faltante en el link de invitación");
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      username: string;
+      role: "entregador";
+      organizationId: string;
+    };
+
+    console.log(`Invitación accedida para: ${decoded.username} en org: ${decoded.organizationId}`);
+
+    return res.send(`
+      <html>
+        <body>
+          <h1>Registro de entregador</h1>
+          <form method="POST" action="/api/invitations/accept-invitation">
+            <input type="hidden" name="token" value="${token}" />
+            <label>Contraseña:</label>
+            <input type="password" name="password" required />
+            <button type="submit">Registrarse</button>
+          </form>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error("Error al verificar token:", error);
+    return res.status(400).send("Invitación inválida o expirada");
   }
 }
 

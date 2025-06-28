@@ -20,4 +20,8 @@ export async function sendEmail(to: string, subject: string, html: string) {
     subject,
     html,
   });
+
+  console.log("SMTP_USER:", process.env.SMTP_USER);
+  console.log("SMTP_PASS:", process.env.SMTP_PASS);
+
 }
