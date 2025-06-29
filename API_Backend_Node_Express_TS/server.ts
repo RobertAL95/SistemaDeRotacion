@@ -8,6 +8,8 @@ dotenv.config();
 
 const app = express();
 
+export default app;
+
 // ✅ Configura CORS solo para tu frontend local
 app.use(cors({
   origin: "http://localhost:5173", // Cambia a tu frontend si es otro puerto/dominio

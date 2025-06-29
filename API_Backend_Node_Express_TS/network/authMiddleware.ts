@@ -13,7 +13,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Token inválido o expirado" });
-    (req as any).user = user; // Coloca los datos decodificados en req.user
+    (req as any).user = user;
     next();
   });
 }

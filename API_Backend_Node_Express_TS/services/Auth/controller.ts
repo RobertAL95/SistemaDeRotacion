@@ -4,10 +4,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
+const JWT_SECRET: string = process.env.JWT_SECRET ?? "default_secret";
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || "1h";
 
-// Login
+// Login para cualquier usuario: supervisor o entregador
 export async function login(req: Request, res: Response) {
   try {
     const { username, password } = req.body;
@@ -21,17 +21,16 @@ export async function login(req: Request, res: Response) {
     if (!validPassword) {
       return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
     }
-
-    const token = jwt.sign(
-      {
-        id: user._id,
-        username: user.username,
-        roles: user.roles,
-        organizationId: user.organizationId, // incluye organizationId en el token
-      },
-      JWT_SECRET,
-      { expiresIn: TOKEN_EXPIRATION }
-    );
+  const token = jwt.sign(
+  {
+    id: user._id,
+    username: user.username,
+    roles: user.roles,
+    organizationId: user.organizationId,
+  },
+  JWT_SECRET, // asegúrate de que es string
+  { expiresIn: TOKEN_EXPIRATION }
+);
 
     return res.json({ token });
   } catch (error) {
@@ -49,11 +48,10 @@ export async function register(req: Request, res: Response) {
       return res.status(400).json({ error: "Username y password son obligatorios" });
     }
 
-    // Chequear si existe al menos un usuario con rol supervisor
+    // Chequear si ya existe un supervisor
     const supervisorExists = await User.findOne({ roles: { $in: ["supervisor"] } });
     if (supervisorExists) {
-      console.log("Supervisor existente:", supervisorExists.username, supervisorExists.organizationId);
-      return res.status(403).json({ error: "Ya existe un supervisor registrado. Use login o invite entregadores." });
+      return res.status(403).json({ error: "Ya existe un supervisor registrado." });
     }
 
     const existingUser = await User.findOne({ username });
@@ -69,7 +67,7 @@ export async function register(req: Request, res: Response) {
       username,
       password: hashedPassword,
       roles: ["supervisor"],
-      organizationId: newOrganizationId, // supervisor crea la organización
+      organizationId: newOrganizationId,
     });
 
     await newUser.save();
